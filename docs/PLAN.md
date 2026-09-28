@@ -1,131 +1,132 @@
-# Product Plan (v0 — draft)
+# HabitUp — Product Plan (v0.2, still refining)
 
-Working name: **Toll** (you pay a toll to get into the fun stuff). Other options: *Earned*, *Keyholder*, *Bundle*.
+Working name: **HabitUp** (placeholder, revisit later).
+Platform: **iOS only** to start. Built for me first, designed so it *can* ship to the App Store later.
 
-## 1. The idea in one line
+## 1. The pitch
 
-A screen-time blocker where the fun apps are locked by default, and the key is **doing the thing you're supposed to do** (temptation bundling) — with an emergency backdoor that is deliberately **expensive or embarrassing**.
+> Instagram unlocks only after 90 minutes of deep work. Bypassing the lock costs you $10 to a cause you hate — or begging a friend for a code.
 
-## 2. Design principle: the Four Laws, inverted
+Existing apps each do one piece:
+- **Opal / Bloom / Screen Time** — block apps. Friction is weak (a timer, a "are you sure?").
+- **Beeminder / stickK** — money on the line. No connection to your phone.
+- **Habit trackers** — log good habits. No reward attached.
 
-Atomic Habits says good habits should be *obvious, attractive, easy, satisfying*. Bad habits get the inversion. Every feature should serve one of these:
+HabitUp closes the loop in one app: **do the hard thing → earn the fun thing → cheating costs you real money or real embarrassment.**
 
-| Law | For the bad habit (scrolling) | For the good habit (the "toll") |
+The white space:
+1. **Earn-to-unlock** (temptation bundling) — some apps stay locked until you finish something real.
+2. **Escalating, adaptive friction** — the more you bypass, the more expensive it gets.
+3. **Stakes built into the blocker** — money and social accountability live in the lock itself, not a separate app.
+
+## 2. How time works: Allowance + Earned Bank
+
+Two layers:
+
+**Layer 1 — Allowance (per app / group).** Normal screen-time rules you set once:
+- Daily limit (e.g. Instagram 20 min/day free)
+- Schedules (e.g. nothing social before 9am or after 10pm)
+- Allowance can be **0** → the app is "earn-only"
+
+**Layer 2 — Earned Bank (shared across all apps).** When an app's allowance runs out, it draws from one shared bank of minutes you earned by completing tasks.
+
+```
+Open Instagram
+  ├─ inside a blocked schedule?   → locked (bank can't override; backdoor only)
+  ├─ allowance left?              → use allowance
+  ├─ earned bank > 0?             → spend from bank
+  └─ nothing left                 → locked → earn more, or use a backdoor
+```
+
+Open decisions:
+- [ ] Can the bank override a schedule block, or are schedules absolute? (Leaning: absolute — bedtime is bedtime.)
+- [ ] Does the bank roll over to tomorrow, or reset at midnight? (Leaning: partial rollover, capped.)
+- [ ] Daily earn cap so you can't bank 6 hours on Sunday?
+
+## 3. Tasks (how you earn)
+
+Every task has an **exchange rate** (what you do → minutes you earn) and a **proof level**. Better proof earns more.
+
+| Proof level | How it's checked | Earn rate |
 |---|---|---|
-| 1. Obvious / Invisible | Apps shielded; blocked icons show a custom screen, not the feed | Shield screen shows *exactly* what task unlocks it |
-| 2. Attractive / Unattractive | Shield shows today's wasted minutes and the "cost" of the backdoor | Temptation bundling: the reward is right there after the task |
-| 3. Easy / Difficult | Friction: waits, typing, friend codes, money | One tap to start a task; auto-verified where possible |
-| 4. Satisfying / Unsatisfying | Backdoor use is logged in a Hall of Shame, streak broken | Streaks, "earned minutes" bank, never-miss-twice tracking |
+| **Auto** | Verified by an API or sensor, no input from me | 100% |
+| **Proof** | I submit evidence (photo, screenshot, link) | ~75% |
+| **Honor** | I tap "done" | ~50%, daily cap |
 
-## 3. Core concepts
+Candidate tasks:
 
-- **Temptation** — an app, app category, or website you want to limit (Instagram, TikTok, YouTube, reddit.com…).
-- **Toll** — something you must do to unlock a temptation. Pays out *earned minutes*.
-- **Bank** — your balance of earned minutes. Spending time in a temptation drains it. When it hits zero, the shield comes back.
-- **Rule** — ties temptations to tolls, schedules, and limits. E.g. "Instagram: locked 9pm–7am; otherwise 10 min per 15-min reading session; max 45 min/day".
-- **Backdoor** — the escape hatch when you *really* need in. Always available, always painful.
-
-## 4. Feature list
-
-### 4.1 Blocking (the foundation)
-- Pick apps / categories / websites to lock (iOS Family Activity Picker).
-- Modes per rule:
-  - **Earn-to-unlock** (temptation bundling) — locked until you pay a toll.
-  - **Daily limit** — plain X min/day, then locked.
-  - **Schedule** — hard lock during windows (bedtime, work block, first hour of the day).
-  - **Open limit** — max N opens per day (kills the reflexive check).
-- Custom **shield screen**: shows the toll needed, current bank, today's usage, and a "backdoor" button that is visually unappealing.
-- Website blocking for Safari (via Screen Time web-domain shields).
-
-### 4.2 Tolls (how you earn time)
-Ranked roughly by how hard they are to cheat:
-
-| Toll | Verification | Notes |
+| Task | Proof | How |
 |---|---|---|
-| Steps / workout | HealthKit | Auto. "1,000 steps = 10 min" |
-| Focus / study session | In-app timer, fails if you leave the app | Pomodoro-style; ties to "read 20 min" |
-| Reading | Timer + photo of the page you ended on | Photo is logged; honor-system-plus |
-| Push-ups / squats | Camera + on-device pose detection (Vision) | Fun, very hard to fake |
-| Meditation | HealthKit mindful minutes or in-app timer | |
-| Go to the gym / a place | Geofence arrival + dwell time | |
-| Finish a to-do | Apple Reminders (EventKit) list completion | Honor-system; good for chores |
-| Journal / reflection | Write N words in-app | "What will you do after scrolling?" |
-| Custom | Honor-system checkbox with a cooldown | Last resort; logged |
+| Steps | Auto | HealthKit |
+| Workout (gym, run, lift) | Auto | HealthKit workouts |
+| Push-ups / squats | Auto | Camera + on-device pose counting |
+| Deep work block (e.g. 90 min) | Auto-ish | In-app focus timer; fails if distracting apps are opened |
+| Code shipped | Auto | GitHub API: PR merged / commits pushed today |
+| LeetCode problem solved | Auto | LeetCode public profile: recent accepted submissions |
+| TensorTonic problem solved | Proof | No known public API → screenshot of solved problem (check again later) |
+| Pages read | Proof | Photo of the page number you stopped on; or a reading timer |
+| Sales calls dialed | Proof → Auto later | Screenshot of dialer / CRM count; later an integration (Salesforce, HubSpot, etc.) |
+| Meditation | Auto | HealthKit mindful minutes |
+| Custom | Honor | Anything else |
 
-Earning rules: exchange rate per toll, **daily earn cap** (so you can't bank 6 hours on Sunday), and optional **bank expiry** (minutes expire at midnight).
+Example exchange rates (all tunable):
+- 90 min deep work → 30 min social
+- 1 LeetCode medium → 15 min
+- 20 pages → 20 min
+- 25 sales dials → 20 min
+- 5,000 steps → 15 min
 
-### 4.3 Backdoors (expensive or embarrassing)
-Each rule picks which backdoors are allowed. Price **escalates** each use in a day/week.
+## 4. Backdoors (the cost of cheating)
 
-1. **Keyholder codes (friend one-time codes)** — the headline feature.
-   - During setup the app shows a QR code **once**; your friend scans it into their authenticator app (Google Authenticator, 1Password, etc.) as e.g. *"Jake's Phone Shame Key"*.
-   - To use the backdoor you must text/call that friend and ask for the current 6-digit code. It's standard TOTP, so **no backend, no friend app install**, works forever.
-   - Optional "ask" button pre-writes a text: *"It's 11:48pm and I'd like to watch TikTok. May I please have my code? 🙏"*
-   - Multiple keyholders; rule can require 1 or 2 of them for nuclear unlocks.
-   - v2: server-backed version where the friend gets a link with Approve / Deny / "Deny and roast" buttons.
-2. **Pay the toll in cash** — Stripe charge to a charity (or an *anti*-charity you dislike), escalating: $1 → $2 → $5. (Needs a small backend; Apple forbids IAP for this if the money isn't going to digital content, so use a donation flow.)
-3. **The Confession** — type a long paragraph verbatim, no paste, typos reset it: *"I, Jake, am choosing to open Instagram instead of…"*. Length grows each use.
-4. **The Wait** — 5-minute cooldown that you must stay on the screen for. Doubles each use.
-5. **Hall of Shame** — every backdoor use is permanently logged with time, app, and (optional) a selfie taken at the moment of weakness. Weekly recap shows it.
-6. **Tattletale** (v2) — auto-sends a message to an accountability friend/group chat when you backdoor.
+Always available, never free. **Prices escalate**: each use in a rolling 7 days raises the next price, and the price cools off again after clean days.
 
-### 4.4 Feedback & motivation
-- Home: bank balance, today's earned vs. spent, streak.
-- **Never miss twice** — a streak that tolerates one bad day but not two.
-- Weekly recap: minutes reclaimed, tolls completed, shame log.
-- Identity framing: "You've been a reader 5 of the last 7 days."
+### 4.1 Keyholder codes ⭐
+- At setup the app shows a QR code **once**. A friend scans it into their authenticator app (Google Authenticator, 1Password, etc.) as e.g. *"Jake's Phone Shame Key."*
+- To bypass, I have to text the friend and ask for the current 6-digit code.
+- Uses the standard authenticator-app code format (TOTP), so there's **no server and the friend doesn't install anything**.
+- One-tap ask pre-writes the text: *"It's 11:48pm and I'd like to watch TikTok. May I please have my code? 🙏"*
+- Escalation: 1 keyholder → 2 keyholders at the same time.
 
-### 4.5 Anti-cheating / commitment
-- **Strict mode**: rules can't be loosened or deleted for 24h after you ask (tightening is instant). This is the big thing most blockers get wrong.
-- Changing a rule during an active lock requires a backdoor.
-- Detect and log when Screen Time permission is revoked (can't prevent it on iOS, but it can break your streak and tattle).
+### 4.2 Cash
+- Pay to unlock: $1 → $3 → $10 as it escalates.
+- Where the money goes (pick one):
+  - **Anti-charity** — a cause I actively dislike (Beeminder / stickK style). Most motivating.
+  - Regular charity.
+  - **Pay my keyholder friend** (Venmo) — funny, and they'll hold me to it.
+- ⚠️ App Store rules on in-app payments for penalties/donations need research before App Store launch. For personal use, a Stripe or Venmo link works fine.
 
-## 5. Platform & tech (proposed)
+### 4.3 Hall of Shame
+- Every backdoor use is logged permanently: time, app, which backdoor, what it cost.
+- Optional selfie taken at the moment of weakness.
+- Weekly recap: "You paid $13 and bothered Mike twice to watch TikTok at midnight."
 
-**iOS first, native SwiftUI.** Only native apps can block other apps on iOS; React Native/Flutter would still need the Swift extensions.
+### 4.4 Parked ideas
+- The Confession (type a long paragraph verbatim, no paste)
+- The Wait (cooldown that doubles)
+- Tattletale (auto-text an accountability friend or group chat when I bypass)
 
-Apple Screen Time API pieces:
-- `FamilyControls` — authorization (`.individual`) + app/website picker. Needs the **Family Controls entitlement**; works for development on your own device right away, App Store distribution requires Apple approval (request early).
-- `ManagedSettings` — applies the shields (apps, categories, web domains).
-- `DeviceActivity` — schedules and usage thresholds (drains the bank, re-locks at 0).
-- App extensions: `ShieldConfiguration` (custom shield look), `ShieldAction` (shield button taps), `DeviceActivityMonitor` (threshold callbacks), `DeviceActivityReport` (usage charts).
-- Shared state via App Group (SwiftData/UserDefaults).
+## 5. Loopholes (not day one)
 
-Known constraints to design around:
-- The shield screen is templated (icon, title, subtitle, 2 buttons) — the real toll/backdoor UI lives in the main app; the shield button sends a notification that deep-links there.
-- Apps are opaque tokens — you can't read their names in the main app; display uses `Label(token)`.
-- Website blocking is Safari/WebKit only; other browsers need to be blocked as apps.
-- Usage-based bank draining uses DeviceActivity thresholds (minute granularity), not exact live timing.
+The easiest way to beat any blocker is to change your own rules or delete the app. Ideas for later, as settings rather than defaults:
+- Loosening a rule only takes effect after a delay; tightening is instant.
+- Revoking Screen Time permission gets logged to the Hall of Shame.
 
-Other: HealthKit, Vision (pose), CoreLocation, EventKit, local TOTP (CryptoKit HMAC). Backend only needed for payments and v2 social features (Supabase or Cloudflare Workers).
+## 6. Feedback loop
 
-Android later (UsageStats + Accessibility Service — actually more flexible, but different code).
+- Home screen: bank balance, allowance left, today's earned vs. spent.
+- Streaks with a "never miss twice" rule (one bad day is OK, two in a row breaks it).
+- Weekly recap: minutes reclaimed, tasks done, Hall of Shame.
 
-## 6. Roadmap
+## 7. iOS constraints to design around
 
-**MVP — "works for me" (personal device, no backend)**
-- [ ] Screen Time authorization + pick temptations
-- [ ] One rule type: earn-to-unlock with bank + daily limit
-- [ ] Tolls: in-app focus timer, HealthKit steps
-- [ ] Custom shield screen → deep link to app
-- [ ] Backdoors: Keyholder TOTP codes, The Wait
-- [ ] Shame log + simple stats
+- Blocking uses Apple's Screen Time frameworks. That needs the Family Controls entitlement: it works for development on my own phone right away, and App Store distribution needs Apple's approval.
+- The screen that covers a blocked app can only be lightly customized. The real "earn / backdoor" UI lives in the main app, and a button on that screen jumps there.
+- Website blocking only works in Safari. Other browsers have to be blocked as apps.
 
-**v1**
-- [ ] Schedules, open limits, strict mode (24h delay on loosening)
-- [ ] Tolls: push-ups (pose), reading w/ photo, Reminders, geofence
-- [ ] Backdoors: Confession, escalating costs, selfie in Hall of Shame
-- [ ] Weekly recap, never-miss-twice streaks, home screen widget
+## 8. Open questions
 
-**v2**
-- [ ] Backend: paid backdoor to charity, friend approval links, tattletale
-- [ ] Mac companion (same Screen Time APIs on macOS)
-- [ ] Shared challenges with friends
-- [ ] Android
-
-## 7. Open questions
-- iOS only, or do you need Android / Mac too?
-- Should earned minutes be global (one bank for all apps) or per-temptation?
-- How strict by default — is "delete the app" an acceptable escape, or should strict mode be on from day one?
-- App Store eventually, or just sideload for yourself?
-- Name?
+- [ ] How much do I trust honor-system tasks? Should they earn at all?
+- [ ] Where does cash go by default: anti-charity, charity, or the friend?
+- [ ] Do backdoor prices escalate per week, per day, or per app?
+- [ ] Should the first version include integrations (GitHub, LeetCode), or just timers + HealthKit + photo proof?
+- [ ] Final name.
