@@ -21,6 +21,8 @@ Market + Apple rules research: see [RESEARCH.md](RESEARCH.md).
 | First tasks | Reading, workouts, deep work, GitHub, LeetCode/TensorTonic |
 | Keyholders | **Web link**, no app or account needed; 6-digit code kept as the offline fallback |
 | Social | **Key swaps**: friends hold each other's keys |
+| Roasts | "Deny + roast" messages are saved to the Hall of Shame |
+| Earn rates | Start with the defaults in §3, tune after a week of real use |
 
 ## 1. The pitch
 
@@ -127,7 +129,7 @@ A keyholder is a friend who can let me through. They **don't need the app or an 
    - What I'm asking for (unlock TikTok 15 min / appeal / loosen a rule / emergency reason)
    - Context: time, this week's usage, backdoors used, Hall of Shame count
    - For appeals: the proof photo/screenshot and my note
-4. Mike taps **Approve**, **Deny**, or **Deny + roast** (a short message that shows up on my lock screen).
+4. Mike taps **Approve**, **Deny**, or **Deny + roast** (a short message that shows up on my lock screen and is saved to the Hall of Shame).
 5. The answer reaches my phone instantly via push; the app unlocks or stays locked.
 
 ### Rules for links
@@ -187,7 +189,5 @@ AI proof checks, keyholder links, and key swaps need a small server: accounts fo
 
 ## 13. Open questions
 
-- [ ] Who are my first keyholders? (Need 1–2 real friends willing to test.)
-- [ ] Should "Deny + roast" messages be saved to the Hall of Shame?
-- [ ] Per-unit starting rates — tune after a week of real use.
-- [ ] Final name.
+- [ ] Who are my first keyholders? (1–2 friends willing to test) — TBD
+- [ ] Final name — TBD
